@@ -43,7 +43,7 @@ func (r *WalletRepository) Withdraw(ctx context.Context, walletID uuid.UUID, amo
 			SET balance = balance - $1
 			WHERE id = $2 AND balance >= $1
 `
-	res, err := r.db.ExecContext(ctx, query, walletID, amount)
+	res, err := r.db.ExecContext(ctx, query, amount, walletID)
 	if err != nil {
 		return fmt.Errorf("failed to withdraw: %w", err)
 	}
@@ -55,7 +55,8 @@ func (r *WalletRepository) Withdraw(ctx context.Context, walletID uuid.UUID, amo
 	}
 	if rowsAffected == 0 {
 		var exists bool
-		err = r.db.QueryRowContext(ctx, query, walletID, amount).Scan(&exists)
+		checkQuery := "SELECT exists(SELECT 1 FROM wallets WHERE id = $1)"
+		err = r.db.QueryRowContext(ctx, checkQuery, walletID).Scan(&exists)
 		if err != nil {
 			return err
 		}

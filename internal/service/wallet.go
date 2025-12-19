@@ -8,6 +8,11 @@ import (
 	"github.com/google/uuid"
 )
 
+type Service interface {
+	UpdateWallet(ctx context.Context, req model.WalletRequest) error
+	GetBalance(ctx context.Context, walletID uuid.UUID) (float64, error)
+}
+
 type WalletRepository interface {
 	Deposit(ctx context.Context, walletID uuid.UUID, amount float64) error
 	Withdraw(ctx context.Context, walletID uuid.UUID, amount float64) error
