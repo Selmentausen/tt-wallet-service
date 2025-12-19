@@ -10,7 +10,7 @@ const (
 )
 
 type WalletRequest struct {
-	WalletID      uuid.UUID     `json:"walletId" binding:"required"`
+	WalletID      uuid.UUID     `json:"valletId" binding:"required"`
 	OperationType OperationType `json:"operationType" binding:"required,oneof=DEPOSIT WITHDRAW"`
 	Amount        float64       `json:"amount" binding:"required,gt=0"`
 }

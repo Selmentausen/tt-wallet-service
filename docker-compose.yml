@@ -1,4 +1,15 @@
 services:
+  app:
+    build: .
+    container_name: wallet_app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    env_file:
+      - config.env
+    restart: always
+
   db:
     image: postgres:16-alpine
     container_name: wallet_db
@@ -6,7 +17,7 @@ services:
     env_file:
       - config.env
     ports:
-      - "5432:5432"
+      - "5436:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:

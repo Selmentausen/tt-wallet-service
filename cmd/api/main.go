@@ -1,9 +1,9 @@
-package api
+package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
+	"time"
 	"wallet-service/internal/config"
 	"wallet-service/internal/handler"
 	"wallet-service/internal/repository"
@@ -19,7 +19,20 @@ func main() {
 		log.Fatal("failed to load config:", err)
 	}
 
-	db, err := sql.Open("pgx", cfg.DBUrl)
+	var db *sql.DB
+	for i := 0; i < 10; i++ {
+		db, err = sql.Open("pgx", cfg.DBUrl)
+		if err == nil {
+			err = db.Ping()
+			if err == nil {
+				log.Println("Connected to DB!")
+				break
+			}
+		}
+		log.Printf("DB not ready, waiting... (%d/10)", i+1)
+		time.Sleep(2 * time.Second)
+	}
+
 	if err != nil {
 		log.Fatal("failed to connect to database:", err)
 	}
@@ -45,15 +58,15 @@ func main() {
 		api.GET("/wallets/:WALLET_UUID", walletHandler.GetBalance)
 	}
 
-	log.Printf("Listening on port %d", cfg.Port)
-	if err := router.Run(fmt.Sprintf(":%d", cfg.Port)); err != nil {
+	log.Printf("Listening on port %s", cfg.Port)
+	if err := router.Run(":" + cfg.Port); err != nil {
 		log.Fatal("failed to start server:", err)
 	}
 }
 
 func runMigrations(db *sql.DB) error {
 	query := `
-			CREATE TABLE IF NOT EXISTS wallet (
+			CREATE TABLE IF NOT EXISTS wallets (
 					id UUID PRIMARY KEY,
 					balance DECIMAL(20, 2) NOT NULL DEFAULT 0
 			);

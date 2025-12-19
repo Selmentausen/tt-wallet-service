@@ -22,7 +22,7 @@ func LoadConfig() (*Config, error) {
 
 	port := os.Getenv("APP_PORT")
 	if port == "" {
-		port = "8080" // Значение по умолчанию
+		port = "8080"
 	}
 
 	return &Config{
